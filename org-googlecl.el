@@ -1,11 +1,3 @@
-;; Interface to the google command line utility.
-;; org-googlecl-blog : posts the current org entry to your google blogger/blogspot blog.
-;; See http://code.google.com/p/googlecl/ for details on downloading and installing the tool.
-;; Another good reason for postactions on creating new-entries - possibly using a inherited tag, if
-;; googlecl-auto-blog tag is set we could call this function directly with no user intervention.
-
-;; email :rileyrgATgooglemailDOTcom
-
 (defcustom org-googlecl-blogname "My Blog Name"
   "The name of the default blogger/blogspot blog you wish to blog to."
   :group 'org-googlecl

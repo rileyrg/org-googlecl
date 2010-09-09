@@ -1,0 +1,26 @@
+Project  : org-googlecl
+Contents : Emacs org-mode interfaces to the google command line utility.
+Author   : Richard Rily
+Email    : rileyrgATgooglemailDOTcom
+
+
+Started : Wednesday 8th Sept 2010
+
+General musing:-
+
+org-googlecl-blog : posts the current org entry to your google blogger/blogspot blog.
+See http://code.google.com/p/googlecl/ for details on downloading and installing the tool.
+Another good reason for postactions on creating new-entries - possibly using a inherited tag, if
+googlecl-auto-blog tag is set we could call this function directly with no user intervention.
+
+
+Requirements
+============
+emacs, org-mode and the command line google utility found here http://code.google.com/p/googlecl/ .
+
+Known Issues
+============
+tag handling is iffy
+possibly more interactive modes for editing title and labels
+
+
