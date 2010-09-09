@@ -9,6 +9,7 @@
   :type 'string)
 
   (defun org-googlecl-blog  ()
+    "Post the current org item to blogger/blogspot. Tags are converted to blogger labels. If you wish to alter the default blog name prefix the function call (C-u)."
     (interactive)
     (if current-prefix-arg
         ; WOuld be nice to be able to query possible blogs and allow tab completion on legal names.
