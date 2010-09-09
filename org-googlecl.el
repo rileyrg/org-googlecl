@@ -19,24 +19,28 @@
   :type 'string)
 
 (defun googlecl-blog (&optional borg btitle blabels bbody)
-
+  "Generalised googlecl blog. Prompt for elements if not passed in. If you wish to blog current org item pass in t for first parameter"
   (unless (setq org-googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname)))
   (unless (setq btitle (read-from-minibuffer "Title:" btitle)))
-  (unless (setq bbody (if (region-active-p) (region-or-word-at-point) (read-from-minibuffer "Body:" ))))
+  (unless (setq bbody (if (use-region-p) (region-or-word-at-point) (read-from-minibuffer "Body:" ))))
   (unless (setq blabels (read-from-minibuffer "Labels:" blabels)))
 
   (let*(
        (tmpfile (make-temp-file "blog-"))
        (tmpbuf (find-file-noselect tmpfile))
-       (blog-command (concat "google blogger post --blog \"" googlecl-blogname "\"" (if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " (if (length blabels) (concat " --tags \"" blabels "\" "))  tmpfile)))
-   (if borg
-	 (org-export-as-html 1 nil nil tmpbuf t))
-   (with-current-buffer tmpbuf
-       (if (not borg)
-	   (insert (concat "" bbody "")))
-       (save-buffer))
-   (message "%s" blog-command)
-   (start-process-shell-command googlecl-process-name googlecl-process-buffer blog-command)))
+       (blog-command (concat 
+		      "google blogger post --blog \"" googlecl-blogname "\""
+		      (if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
+		      (if (length blabels) (concat " --tags \"" blabels "\" "))  
+		      tmpfile)))
+    (if borg
+	(org-export-as-html 1 nil nil tmpbuf t))
+    (with-current-buffer tmpbuf
+      (if (not borg)
+	  (insert (concat "" bbody "")))
+      (save-buffer))
+    (message "%s" blog-command)
+    (start-process-shell-command googlecl-process-name googlecl-process-buffer blog-command)))
         
 
 (defun org-googlecl-blog  ()
