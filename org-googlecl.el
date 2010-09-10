@@ -14,12 +14,12 @@
   :type 'string)
 
 (defcustom googlecl-process-name "Google CLI"
-  "Name of the process the gogole program uses"
+  "Name of the process the google program uses"
   :group 'org-googlecl
   :type 'string)
 
 (defun googlecl-blog (&optional borg btitle blabels bbody)
-  "Generalised googlecl blog. Prompt for elements if not passed in. If you wish to blog current org item pass in t for first parameter"
+  "Generalised googlecl blog. Prompt for elements if not passed in. If you wish to blog current org item set borg parameter to t"
   (setq org-googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
   (setq btitle (read-from-minibuffer "Title:" btitle))
   (unless borg (setq bbody (if (use-region-p) (region-or-word-at-point) (read-from-minibuffer "Body:" ))))
