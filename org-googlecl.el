@@ -19,7 +19,10 @@
   :type 'string)
 
 (defun googlecl-blog (&optional borg btitle blabels bbody)
-  "Generalised googlecl blog. Prompt for elements if not passed in. If you wish to blog current org item set borg parameter to t"
+  "Generalised googlecl blog. Only prompt for blog,title and
+labels if an org item as the rest comes from the org item at
+point. If you wish to blog current org item set borg parameter to
+t"
   (setq org-googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
   (setq btitle (read-from-minibuffer "Title:" btitle))
   (unless borg (setq bbody (if (use-region-p) (region-or-word-at-point) (read-from-minibuffer "Body:" ))))
