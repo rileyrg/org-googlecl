@@ -20,10 +20,10 @@
 
 (defun googlecl-blog (&optional borg btitle blabels bbody)
   "Generalised googlecl blog. Prompt for elements if not passed in. If you wish to blog current org item pass in t for first parameter"
-  (unless (setq org-googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname)))
-  (unless (setq btitle (read-from-minibuffer "Title:" btitle)))
-  (unless (setq bbody (if (use-region-p) (region-or-word-at-point) (read-from-minibuffer "Body:" ))))
-  (unless (setq blabels (read-from-minibuffer "Labels:" blabels)))
+  (setq org-googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname)
+  (unless btitle (setq btitle (read-from-minibuffer "Title:" btitle)))
+  (unless bbody (setq bbody (if (use-region-p) (region-or-word-at-point) (read-from-minibuffer "Body:" ))))
+  (unless blabels (setq blabels (read-from-minibuffer "Labels:" blabels)))
 
   (let*(
        (tmpfile (make-temp-file "blog-"))
