@@ -20,7 +20,7 @@
 
 (defun googlecl-blog (&optional borg btitle blabels bbody)
   "Generalised googlecl blog. Prompt for elements if not passed in. If you wish to blog current org item pass in t for first parameter"
-  (setq org-googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname)
+  (setq org-googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
   (unless btitle (setq btitle (read-from-minibuffer "Title:" btitle)))
   (unless borg (setq bbody (if (use-region-p) (region-or-word-at-point) (read-from-minibuffer "Body:" ))))
   (unless blabels (setq blabels (read-from-minibuffer "Labels:" blabels)))
@@ -52,7 +52,7 @@
     (goto-char (org-entry-beginning-position))
     (let ((blabels (mapconcat  'identity (org-get-tags) ","))
 	  (btitle (org-trim (replace-regexp-in-string (org-get-tags-string) "" (org-get-heading)) )))
-      (set-mark (org-entry-end-position))
+      (org-forward-same-level 1 t)
       (googlecl-blog t btitle blabels))))
 
 (provide 'org-googlecl)
