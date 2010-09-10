@@ -49,7 +49,7 @@
   (if current-prefix-arg
       (setq googlecl-blogname (read-from-minibuffer "Blog Name:")))
   (save-excursion
-    (goto-char (org-entry-beginning-position))
+    (set-mark (goto-char (org-entry-beginning-position)))
     (let ((blabels (mapconcat  'identity (org-get-tags) ","))
 	  (btitle (org-trim (replace-regexp-in-string (org-get-tags-string) "" (org-get-heading)) )))
       (org-forward-same-level 1 t)
