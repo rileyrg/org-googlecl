@@ -22,11 +22,12 @@ Requirements
 ============
 emacs, org-mode.
 The command line google utility found here http://code.google.com/p/googlecl/ .
-NOTE : you must set up the Blog authorisation from the command line before using these functions. I dont know why you must do it from the command line and I haven't looked into it. Hey, maybe you don't. But all it takes is to run an example from the link above substituting the correct blog name and user the correct goggle account user and then confirming that you may use the googlecl took to access the Blogger API.
+NOTE : you must set up the Blog authorisation from the command line before using these functions. 
+The easiest way to to this is to "google blogger list" from the command line.
 
 Known Issues
 ============
-tag handling is iffy
-possibly more interactive modes for editing title and labels
+Am sure there must be a better way of getting only the text header not to include the tags.
+
 
 
