@@ -23,7 +23,7 @@
 labels if an org item as the rest comes from the org item at
 point. If you wish to blog current org item set borg parameter to
 t"
-  (setq org-googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
+  (setq googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
   (setq btitle (read-from-minibuffer "Title:" btitle))
   (unless borg (setq bbody (if (use-region-p) (region-or-word-at-point) (read-from-minibuffer "Body:" ))))
   (setq blabels (read-from-minibuffer "Labels:" blabels))
