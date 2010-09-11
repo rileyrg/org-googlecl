@@ -18,6 +18,19 @@ googlecl-process-name : "Name of the process the gogole program uses"
 (org-googlecl-blog) ; posts current org item to blogger/blogspot.
 (googlecl-blog) ; more general function.
 
+The most straightforward usage is to set up a hot key to call
+
+    (googlecl-prompt-blog)
+
+This will detect if you are in org and if so ask you if you wish to blog the entire org
+item - if you say "no" it will provide a normal text blog using (googlecl-blog).
+
+This might be done like this:-
+
+     (define-key mode-specific-map [?B] 'googlecl-prompt-blog)
+
+
+
 Requirements
 ============
 emacs, org-mode.
