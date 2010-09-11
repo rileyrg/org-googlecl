@@ -18,6 +18,15 @@
   :group 'org-googlecl
   :type 'string)
 
+(defun googlecl-prompt-blog ()
+  "If in an org buffer prompt whether to blog the entire entry or to perform a  normal text blog."
+  (interactive)
+  (if (eq major-mode 'org-mode)
+      (if (yes-or-no-p "Blog the Org Entry?")
+	  (org-googlecl-blog)
+	(googlecl-blog))
+    (googlecl-blog)))
+     
 (defun googlecl-blog (&optional borg btitle blabels bbody)
   "Generalised googlecl blog. Only prompt for blog,title and
 labels if an org item as the rest comes from the org item at
@@ -45,15 +54,6 @@ t"
     (message "%s" blog-command)
     (start-process-shell-command googlecl-process-name googlecl-process-buffer blog-command)))
 
-(defun googlecl-prompt-blog ()
-  "If in a org buffer prompt whether to blog the entire entry else normal text blog."
-  (interactive)
-  (if (eq major-mode 'org-mode)
-      (if (yes-or-no-p "Blog the Org Entry?")
-	  (org-googlecl-blog)
-	(googlecl-blog))
-    (googlecl-blog)))
-     
 (defun org-googlecl-blog  ()
   "Post the current org item to blogger/blogspot. Tags are converted to blogger labels. If you wish to alter the default blog name prefix the function call (C-u)."
   (interactive)

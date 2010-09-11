@@ -30,7 +30,6 @@ This might be done like this:-
      (define-key mode-specific-map [?B] 'googlecl-prompt-blog)
 
 
-
 Requirements
 ============
 emacs, org-mode.
