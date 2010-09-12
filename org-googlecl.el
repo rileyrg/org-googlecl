@@ -62,7 +62,7 @@ t"
   (save-excursion
     (set-mark (goto-char (org-entry-beginning-position)))
     (let ((blabels (mapconcat  'identity (org-get-tags) ","))
-	  (btitle (org-trim (replace-regexp-in-string (org-get-tags-string) "" (org-get-heading)) )))
+	  (btitle (nth 4 (org-heading-components))))
       (org-forward-same-level 1 t)
       (googlecl-blog t btitle blabels))))
 
