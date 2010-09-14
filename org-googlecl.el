@@ -28,6 +28,11 @@
   :group 'org-googlecl
   :type 'string)
 
+(defcustom googlecl-prompt-footer nil
+  "whether to prompt with the footer"
+  :group 'org-googlecl
+  :type 'boolean)
+
 (defcustom googlecl-blog-exists nil
   "Set to t if you wish to be informed if the item is already blogged. If set and the items exists you be prompted to post again or to browse the existing blog entry."
   :group 'org-googlecl
@@ -50,6 +55,9 @@ t"
   (setq googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
   (setq btitle (read-from-minibuffer "Title:" btitle))
 
+
+  ;; if the option flag googlecl-blog-exists is set to true we check if there is already an entry with this title.
+  ;; if there is give the option to view the existing one.
   (if googlecl-blog-exists
       (with-temp-buffer
 	(let* ((blogrc (call-process-shell-command  (concat "google blogger  list --blog '" googlecl-blogname "' --title '" btitle "' url") nil (current-buffer)))
@@ -76,10 +84,10 @@ t"
 		   blabels
 		 ))))
 
-  (setq googlecl-footer
+  (if googlecl-prompt-footer (setq googlecl-footer
 	(read-from-minibuffer
 	 "Footer:"
-	 googlecl-footer))
+	 googlecl-footer)))
 
   (let*(
        (tmpfile (make-temp-file "blog-"))
