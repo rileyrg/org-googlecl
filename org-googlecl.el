@@ -18,6 +18,11 @@
   :group 'org-googlecl
   :type 'string)
 
+(defcustom googlecl-default-labels "emacs,elisp"
+  "Name of the process the google program uses"
+  :group 'org-googlecl
+  :type 'string)
+
 (defun googlecl-prompt-blog ()
   "If in an org buffer prompt whether to blog the entire entry or to perform a  normal text blog."
   (interactive)
@@ -35,7 +40,7 @@ t"
   (setq googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
   (setq btitle (read-from-minibuffer "Title:" btitle))
   (unless borg (setq bbody (if (use-region-p) (region-or-word-at-point) (read-from-minibuffer "Body:" ))))
-  (setq blabels (read-from-minibuffer "Labels:" blabels))
+  (setq googlecl-default-labels (setq blabels (read-from-minibuffer "Labels:" googlecl-default-labels)))
 
   (let*(
        (tmpfile (make-temp-file "blog-"))
