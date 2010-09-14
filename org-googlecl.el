@@ -28,7 +28,7 @@
   :group 'org-googlecl
   :type 'boolean)
 
-(defcustom googlecl-footer "<br/>-- <br/><a href='http://http://github.com/rileyrg'>My Emacs Files At GitHub</a>"
+(defcustom googlecl-footer "<br/>-- <br/><a href='http://github.com/rileyrg'>My Emacs Files At GitHub</a>"
   "footer for the post"
   :group 'org-googlecl
   :type 'string)
