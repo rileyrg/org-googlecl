@@ -19,7 +19,12 @@
   :type 'string)
 
 (defcustom googlecl-default-labels "emacs,elisp"
-  "Name of the process the google program uses"
+  "default labels"
+  :group 'org-googlecl
+  :type 'string)
+
+(defcustom googlecl-footer "<br/>-- <br/><a href='http://http://github.com/rileyrg'>My Emacs Files At GitHub</a>"
+  "footer for the post"
   :group 'org-googlecl
   :type 'string)
 
@@ -39,8 +44,29 @@ point. If you wish to blog current org item set borg parameter to
 t"
   (setq googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
   (setq btitle (read-from-minibuffer "Title:" btitle))
-  (unless borg (setq bbody (if (use-region-p) (region-or-word-at-point) (read-from-minibuffer "Body:" ))))
-  (setq googlecl-default-labels (setq blabels (read-from-minibuffer "Labels:" googlecl-default-labels)))
+
+  (unless borg (setq bbody 
+		     (if (use-region-p) 
+			 (region-or-word-at-point) 
+		       (read-from-minibuffer "Body:" ))))
+
+
+  (if blabels
+      (setq blabels (string-trim blabels)))
+
+  (setq googlecl-default-labels 
+	(setq blabels 
+	      (read-from-minibuffer 
+	       "Labels:" 
+	       (if (zerop (length blabels))
+		   googlecl-default-labels
+		   blabels
+		 ))))
+
+  (setq googlecl-footer
+	(read-from-minibuffer
+	 "Footer:"
+	 googlecl-footer))
 
   (let*(
        (tmpfile (make-temp-file "blog-"))
@@ -52,12 +78,21 @@ t"
 		      tmpfile)))
     (if borg
 	(org-export-as-html 1 nil nil tmpbuf t))
+
     (with-current-buffer tmpbuf
       (if (not borg)
 	  (insert (concat "" bbody "")))
+      (goto-char (buffer-end 1))
+      (insert googlecl-footer)
       (save-buffer))
     (message "%s" blog-command)
-    (start-process-shell-command googlecl-process-name googlecl-process-buffer blog-command)))
+
+    (start-process-shell-command
+     googlecl-process-name
+     googlecl-process-buffer
+     blog-command))
+
+  (message "Done!"))
 
 (defun org-googlecl-blog  ()
   "Post the current org item to blogger/blogspot. Tags are converted to blogger labels. If you wish to alter the default blog name prefix the function call (C-u)."
