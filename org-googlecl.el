@@ -88,31 +88,30 @@ t"
 	 "Footer:"
 	 googlecl-footer)))
 
-  (let*(
-       (tmpfile (make-temp-file "blog-"))
-       (tmpbuf (find-file-noselect tmpfile))
-       (blog-command (concat 
-		      "google blogger post --blog \"" googlecl-blogname "\""
-		      (if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
-		      (if (length blabels) (concat " --tags \"" blabels "\" "))  
-		      tmpfile)))
-    (if borg
-	(org-export-as-html 1 nil nil tmpbuf t))
+  (let((tmpfile (make-temp-file "googlecl")))
 
-    (with-current-buffer tmpbuf
-      (if (not borg)
+    (let ((blog-command (concat 
+			 "google blogger post --blog \"" googlecl-blogname "\""
+			 (if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
+			 (if (length blabels) (concat " --tags \"" blabels "\" "))  
+			 tmpfile)))
+
+      (with-temp-file  tmpfile
+	
+	
+	(message "command is : %s" blog-command)
+	
+	(if borg
+	    (org-export-as-html 1 nil nil (current-buffer) t)
 	  (insert (concat "" bbody "")))
-      (goto-char (buffer-end 1))
-      (insert googlecl-footer)
-      (save-buffer)
-      (kill-buffer))
-
-    (message "%s" blog-command)
-
-    (start-process-shell-command
-     googlecl-process-name
-     googlecl-process-buffer
-     blog-command))
+	
+	(goto-char (buffer-end 1))
+	(insert googlecl-footer))
+	
+      (start-process-shell-command
+       googlecl-process-name
+       googlecl-process-buffer
+       blog-command)))
 
   (message "Done!"))
 
