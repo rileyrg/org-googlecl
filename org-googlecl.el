@@ -23,6 +23,11 @@
   :group 'org-googlecl
   :type 'string)
 
+(defcustom googlecl-blog-exists nil
+  "Set to t if you wish to be informed if the item is already blogged. If set and the items exists you be prompted to post again or to browse the existing blog entry."
+  :group 'org-googlecl
+  :type 'boolean)
+
 (defcustom googlecl-footer "<br/>-- <br/><a href='http://http://github.com/rileyrg'>My Emacs Files At GitHub</a>"
   "footer for the post"
   :group 'org-googlecl
@@ -30,11 +35,6 @@
 
 (defcustom googlecl-prompt-footer nil
   "whether to prompt with the footer"
-  :group 'org-googlecl
-  :type 'boolean)
-
-(defcustom googlecl-blog-exists nil
-  "Set to t if you wish to be informed if the item is already blogged. If set and the items exists you be prompted to post again or to browse the existing blog entry."
   :group 'org-googlecl
   :type 'boolean)
 
@@ -55,9 +55,8 @@ t"
   (setq googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
   (setq btitle (read-from-minibuffer "Title:" btitle))
 
-
-  ;; if the option flag googlecl-blog-exists is set to true we check if there is already an entry with this title.
-  ;; if there is give the option to view the existing one.
+  ;; If the option flag googlecl-blog-exists is set to true we check if there is already an entry with this title.
+  ;; If a blog with the same title exists then give the option to view it via the default browser.
   (if googlecl-blog-exists
       (with-temp-buffer
 	(let* ((blogrc (call-process-shell-command  (concat "google blogger  list --blog '" googlecl-blogname "' --title '" btitle "' url") nil (current-buffer)))
@@ -105,7 +104,9 @@ t"
 	  (insert (concat "" bbody "")))
       (goto-char (buffer-end 1))
       (insert googlecl-footer)
-      (save-buffer))
+      (save-buffer)
+      (kill-buffer))
+
     (message "%s" blog-command)
 
     (start-process-shell-command
