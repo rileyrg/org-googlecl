@@ -54,7 +54,7 @@ t"
       (with-temp-buffer
 	(let* ((blogrc (call-process-shell-command  (concat "google blogger  list --blog '" googlecl-blogname "' --title '" btitle "' url") nil (current-buffer)))
 	     (blogurl (buffer-string)))
-	  (if (length blogurl)
+	  (if (not (zerop(length blogurl)))
 	      (if (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?"))
 		  (browse-url blogurl))))))
   
