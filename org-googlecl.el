@@ -28,6 +28,11 @@
   :group 'org-googlecl
   :type 'string)
 
+(defcustom googlecl-blog-exists nil
+  "Set to t if you wish to be informed if the item is already blogged. If set and the items exists you be prompted to post again or to browse the existing blog entry."
+  :group 'org-googlecl
+  :type 'boolean)
+
 (defun googlecl-prompt-blog ()
   "If in an org buffer prompt whether to blog the entire entry or to perform a  normal text blog."
   (interactive)
@@ -45,6 +50,14 @@ t"
   (setq googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
   (setq btitle (read-from-minibuffer "Title:" btitle))
 
+  (if googlecl-blog-exists
+      (with-temp-buffer
+	(let* ((blogrc (call-process-shell-command  (concat "google blogger  list --blog '" googlecl-blogname "' --title '" btitle "' url") nil (current-buffer)))
+	     (blogurl (buffer-string)))
+	  (if (length blogurl)
+	      (if (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?"))
+		  (browse-url blogurl))))))
+  
   (unless borg (setq bbody 
 		     (if (use-region-p) 
 			 (region-or-word-at-point) 
