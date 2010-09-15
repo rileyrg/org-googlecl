@@ -133,10 +133,11 @@ t"
       (set-mark (goto-char (org-entry-beginning-position)))
       (let*((btags  (org-get-tags)))
 	(save-excursion
+	  (set-mark (goto-char (org-entry-beginning-position)))
 	  (let ((btitle (nth 4 (org-heading-components))))
 	    (org-forward-same-level 1 t)
 	    (googlecl-blog t btitle (mapconcat  'identity  (remove googlecl-blog-tag btags) ","))))
-	
+       
 	(if (not(zerop(length googlecl-blog-tag)))
 	    (org-set-tags-to (add-to-list 'btags googlecl-blog-tag))))))
 	       
