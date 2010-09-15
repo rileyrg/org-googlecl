@@ -8,16 +8,6 @@
   :group 'org-googlecl
   :type 'string)
 
-(defcustom googlecl-process-buffer "*googlecl*"
-  "Name of the buffer the googlecl process logs to"
-  :group 'org-googlecl
-  :type 'string)
-
-(defcustom googlecl-process-name "Google CLI"
-  "Name of the process the google program uses"
-  :group 'org-googlecl
-  :type 'string)
-
 (defcustom googlecl-default-labels "emacs,elisp"
   "default labels"
   :group 'org-googlecl
@@ -47,6 +37,7 @@
 	(googlecl-blog))
     (googlecl-blog)))
      
+
 (defun googlecl-blog (&optional borg btitle blabels bbody)
   "Generalised googlecl blog. Only prompt for blog,title and
 labels if an org item as the rest comes from the org item at
@@ -60,15 +51,15 @@ t"
   (if googlecl-blog-exists
       (with-temp-buffer
 	(let* ((blogrc (call-process-shell-command  (concat "google blogger  list --blog '" googlecl-blogname "' --title '" btitle "' url") nil (current-buffer)))
-	     (blogurl (buffer-string)))
-	  (if (not (zerop(length blogurl)))
-	      (if (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?"))
-		  (browse-url blogurl))))))
+	            (blogurl (buffer-string)))
+	    (if (not (zerop(length blogurl)))
+		      (if (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?"))
+			    (browse-url blogurl))))))
   
   (unless borg (setq bbody 
-		     (if (use-region-p) 
-			 (region-or-word-at-point) 
-		       (read-from-minibuffer "Body:" ))))
+		          (if (use-region-p) 
+			       (region-or-word-at-point) 
+			           (read-from-minibuffer "Body:" ))))
 
 
   (if blabels
@@ -76,44 +67,43 @@ t"
 
   (setq googlecl-default-labels 
 	(setq blabels 
-	      (read-from-minibuffer 
-	       "Labels:" 
-	       (if (zerop (length blabels))
-		   googlecl-default-labels
-		   blabels
-		 ))))
+	            (read-from-minibuffer 
+		            "Labels:" 
+			           (if (zerop (length blabels))
+				          googlecl-default-labels
+				        blabels
+					 ))))
 
   (if googlecl-prompt-footer (setq googlecl-footer
-	(read-from-minibuffer
-	 "Footer:"
-	 googlecl-footer)))
+				   (read-from-minibuffer
+				     "Footer:"
+				      googlecl-footer)))
 
-  (let((tmpfile (make-temp-file "googlecl")))
+  (let*(
+       (tmpfile (make-temp-file "blog-"))
+       (tmpbuf (find-file-noselect tmpfile))
+       (blog-command (concat 
+		            "google blogger post --blog \"" googlecl-blogname "\""
+			          (if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
+				        (if (length blabels) (concat " --tags \"" blabels "\" "))  
+					      tmpfile)))
+    (if borg
+	(org-export-as-html 1 nil nil tmpbuf t))
 
-    (let ((blog-command (concat 
-			 "google blogger post --blog \"" googlecl-blogname "\""
-			 (if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
-			 (if (length blabels) (concat " --tags \"" blabels "\" "))  
-			 tmpfile)))
-
-      (with-temp-file  tmpfile
-	
-	
-	(message "command is : %s" blog-command)
-	
-	(if borg
-	    (org-export-as-html 1 nil nil (current-buffer) t)
-	  (insert (concat "" bbody "")))
-	
-	(goto-char (buffer-end 1))
-	(insert googlecl-footer))
-	
-      (start-process-shell-command
-       googlecl-process-name
-       googlecl-process-buffer
-       blog-command)))
+    (with-current-buffer tmpbuf
+      (if (not borg)
+	    (insert (concat "" bbody "")))
+      (goto-char (buffer-end 1))
+      (insert googlecl-footer)
+      (message "%s" blog-command)
+      (save-buffer)
+      (call-process-shell-command blog-command))
+      (kill-buffer))
 
   (message "Done!"))
+
+
+
 
 (defun org-googlecl-blog  ()
   "Post the current org item to blogger/blogspot. Tags are converted to blogger labels. If you wish to alter the default blog name prefix the function call (C-u)."
