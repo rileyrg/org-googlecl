@@ -13,12 +13,7 @@ http://splash-of-open-sauce.blogspot.com/
 Usage
 =====
 
-Config :-
-
-googlecl-blogname : "The name of the default blogger/blogspot blog you wish to blog to."
-googlecl-username : "The google user id you wish to authenticate with. e.g mydevusername@googlemail.com"
-googlecl-process-buffer : "Name of the buffer the googlecl process logs to"
-googlecl-process-name : "Name of the process the gogole program uses"
+M-x customize-group <enter> org-googlecl <enter>
 
 (org-googlecl-blog) ; posts current org item to blogger/blogspot.
 (googlecl-blog) ; more general function.
