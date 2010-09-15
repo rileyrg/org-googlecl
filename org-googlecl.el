@@ -33,7 +33,7 @@
   :group 'org-googlecl
   :type 'boolean)
 
-(defcustom googlecl-blog-tag "blogged"
+(defcustom googlecl-blog-tag "gblog"
   "org entries that are blogged are tagged with this tag. Leave empty if you dont want your org entry tagged."
   :group 'org-googlecl
   :type 'string)
