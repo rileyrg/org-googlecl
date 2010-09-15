@@ -37,7 +37,6 @@
 	(googlecl-blog))
     (googlecl-blog)))
      
-
 (defun googlecl-blog (&optional borg btitle blabels bbody)
   "Generalised googlecl blog. Only prompt for blog,title and
 labels if an org item as the rest comes from the org item at
@@ -51,15 +50,15 @@ t"
   (if googlecl-blog-exists
       (with-temp-buffer
 	(let* ((blogrc (call-process-shell-command  (concat "google blogger  list --blog '" googlecl-blogname "' --title '" btitle "' url") nil (current-buffer)))
-	            (blogurl (buffer-string)))
-	    (if (not (zerop(length blogurl)))
-		      (if (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?"))
-			    (browse-url blogurl))))))
+	     (blogurl (buffer-string)))
+	  (if (not (zerop(length blogurl)))
+	      (if (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?"))
+		  (browse-url blogurl))))))
   
   (unless borg (setq bbody 
-		          (if (use-region-p) 
-			       (region-or-word-at-point) 
-			           (read-from-minibuffer "Body:" ))))
+		     (if (use-region-p) 
+			 (region-or-word-at-point) 
+		       (read-from-minibuffer "Body:" ))))
 
 
   (if blabels
@@ -67,40 +66,36 @@ t"
 
   (setq googlecl-default-labels 
 	(setq blabels 
-	            (read-from-minibuffer 
-		            "Labels:" 
-			           (if (zerop (length blabels))
-				          googlecl-default-labels
-				        blabels
-					 ))))
+	      (read-from-minibuffer 
+	       "Labels:" 
+	       (if (zerop (length blabels))
+		   googlecl-default-labels
+		   blabels
+		 ))))
 
   (if googlecl-prompt-footer (setq googlecl-footer
-				   (read-from-minibuffer
-				     "Footer:"
-				      googlecl-footer)))
+	(read-from-minibuffer
+	 "Footer:"
+	 googlecl-footer)))
 
-  (let*(
-       (tmpfile (make-temp-file "blog-"))
-       (tmpbuf (find-file-noselect tmpfile))
-       (blog-command (concat 
-		            "google blogger post --blog \"" googlecl-blogname "\""
-			          (if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
-				        (if (length blabels) (concat " --tags \"" blabels "\" "))  
-					      tmpfile)))
-    (if borg
-	(org-export-as-html 1 nil nil tmpbuf t))
+  (let* ((tmpfile (make-temp-file "googlecl"))
+	 (bhtml (if borg (org-export-as-html 5 nil nil 'string t) bbody))
+	 (blog-command (concat 
+			"google blogger post --blog \"" googlecl-blogname "\""
+			(if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
+			(if (length blabels) (concat " --tags \"" blabels "\" "))  
+			tmpfile)))
+    
+    (message "blog command is %s" blog-command)
 
-    (with-current-buffer tmpbuf
-      (if (not borg)
-	    (insert (concat "" bbody "")))
+    (with-temp-file  tmpfile
+      (insert bhtml)
       (goto-char (buffer-end 1))
-      (insert googlecl-footer)
-      (message "%s" blog-command)
-      (save-buffer)
-      (call-process-shell-command blog-command))
-      (kill-buffer))
+      (insert googlecl-footer))
 
-  (message "Done!"))
+    (call-process-shell-command blog-command)
+    
+    (message "Done!")))
 
 
 
