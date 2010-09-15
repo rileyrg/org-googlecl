@@ -52,8 +52,14 @@ t"
 	(let* ((blogrc (call-process-shell-command  (concat "google blogger  list --blog '" googlecl-blogname "' --title '" btitle "' url") nil (current-buffer)))
 	     (blogurl (buffer-string)))
 	  (if (not (zerop(length blogurl)))
-	      (if (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?"))
-		  (browse-url blogurl))))))
+	      (progn
+		(if (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?"))
+		    (browse-url (nth 0 (org-split-string blogurl))))
+		(setq blogurl (nth 0 (org-split-string blogurl)))
+		(if (y-or-n-p "Delete existing blog entry?")
+		    (let ((delcommand  (format "yes y | google blogger delete --blog '%s'  --title '%s'"  googlecl-blogname  btitle)))
+		      (message "Delete command is : %s" delcommand)
+		      (call-process-shell-command delcommand))))))))
   
   (unless borg (setq bbody 
 		     (if (use-region-p) 
