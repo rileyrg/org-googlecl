@@ -93,9 +93,7 @@ t"
       (goto-char (buffer-end 1))
       (insert googlecl-footer))
 
-    (call-process-shell-command blog-command)
-    
-    (message "Done!")))
+    (start-process-shell-command "googlecl-pid" nil blog-command)))
 
 
 
