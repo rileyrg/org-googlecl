@@ -28,12 +28,32 @@
   :group 'org-googlecl
   :type 'boolean)
 
+(defcustom googlecl-blog-exists nil
+  "Set to t if you wish to be informed if the item is already blogged. If set and the items exists you be prompted to post again or to browse the existing blog entry."
+  :group 'org-googlecl
+  :type 'boolean)
+
+(defcustom googlecl-blog-tag "blogged"
+  "org entries that are blogged are tagged with this tag. Leave empty if you dont want your org entry tagged."
+  :group 'org-googlecl
+  :type 'string)
+
+(defcustom googlecl-blog-auto-del nil
+  "If set to t then will auto delete any existing blog entries with the same title"
+  :group 'org-googlecl
+  :type 'boolean)
+
+(defcustom googlecl-blog-exists t
+  "Set to t if you wish to be informed if the item is already blogged."
+  :group 'org-googlecl
+  :type 'boolean)
+
 (defun googlecl-prompt-blog ()
   "If in an org buffer prompt whether to blog the entire entry or to perform a  normal text blog."
   (interactive)
   (if (eq major-mode 'org-mode)
       (if (yes-or-no-p "Blog the Org Entry?")
-	  (org-googlecl-blog)
+	    (org-googlecl-blog) 
 	(googlecl-blog))
     (googlecl-blog)))
      
@@ -53,10 +73,10 @@ t"
 	     (blogurl (buffer-string)))
 	  (if (not (zerop(length blogurl)))
 	      (progn
-		(if (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?"))
+		(if (and googlecl-blog-exists (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?")))
 		    (browse-url (nth 0 (org-split-string blogurl))))
 		(setq blogurl (nth 0 (org-split-string blogurl)))
-		(if (y-or-n-p "Delete existing blog entry?")
+		(if (or googlecl-blog-auto-del (y-or-n-p "Delete existing blog entry?"))
 		    (let ((delcommand  (format "yes y | google blogger delete --blog '%s'  --title '%s'"  googlecl-blogname  btitle)))
 		      (message "Delete command is : %s" delcommand)
 		      (call-process-shell-command delcommand))))))))
@@ -102,18 +122,23 @@ t"
     (start-process-shell-command "googlecl-pid" nil blog-command)))
 
 
-
-
 (defun org-googlecl-blog  ()
-  "Post the current org item to blogger/blogspot. Tags are converted to blogger labels. If you wish to alter the default blog name prefix the function call (C-u)."
+  "Post the current org item to blogger/blogspot.
+   Tags are converted to blogger labels. If you wish to alter the default blog name prefix the function call (C-u)."
   (interactive)
   (if current-prefix-arg
       (setq googlecl-blogname (read-from-minibuffer "Blog Name:")))
+
   (save-excursion
-    (set-mark (goto-char (org-entry-beginning-position)))
-    (let ((blabels (mapconcat  'identity (org-get-tags) ","))
-	  (btitle (nth 4 (org-heading-components))))
-      (org-forward-same-level 1 t)
-      (googlecl-blog t btitle blabels))))
+      (set-mark (goto-char (org-entry-beginning-position)))
+      (let*((btags  (org-get-tags)))
+	(save-excursion
+	  (let ((btitle (nth 4 (org-heading-components))))
+	    (org-forward-same-level 1 t)
+	    (googlecl-blog t btitle (mapconcat  'identity  (remove googlecl-blog-tag btags) ","))))
+	
+	(if (not(zerop(length googlecl-blog-tag)))
+	    (org-set-tags-to (add-to-list 'btags googlecl-blog-tag))))))
+	       
 
 (provide 'org-googlecl)
