@@ -43,6 +43,11 @@ google --help
 
 for more details.
 
+Coming Up
+=========
+Ability to list blogs based on title contents and then jump to asociated org item if it exists.
+assign a UID to the blog and org item for instant match ups.
+
 
 Known Issues
 ============
