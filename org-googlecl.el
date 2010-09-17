@@ -148,6 +148,7 @@ t"
 	       
 
 (global-set-key (kbd "C-c L") 'googlecl-list-blogs)
+(global-set-key (kbd "C-c B") 'googlecl-prompt-blog)
 
 (defun googlecl-list-process (proc string)
   (with-current-buffer (process-buffer proc)
