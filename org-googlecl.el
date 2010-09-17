@@ -142,4 +142,30 @@ t"
 	    (org-set-tags-to (add-to-list 'btags googlecl-blog-tag))))))
 	       
 
+(global-set-key (kbd "C-c L") 'googlecl-list-blogs)
+
+(defun googlecl-list-process (proc string)
+  (with-current-buffer (process-buffer proc)
+    (delete-region (point-min) (point-max))
+    (org-mode)
+    (insert (format "List of blogs with <%s> in the title\n\n" googlecl-default-title-filter))
+    (set-marker (process-mark proc) (point))
+    (let ((moving (= (point) (process-mark proc))))
+      (save-excursion
+	;; Insert the text, advancing the process marker.
+	(goto-char (process-mark proc))
+	(insert string)
+	(set-marker (process-mark proc) (point)))
+      (if moving (goto-char (process-mark proc))))
+    (switch-to-buffer (process-buffer proc))))
+
+(defun googlecl-list-blogs ()
+  "accept a  title filter value and then list all blogs which match that value"
+  (interactive)
+  (let*((regexpfilter (read-from-minibuffer "Title Contains:"  googlecl-default-title-filter) )
+	 (listblogcmd (concat  "google blogger list title,url --title \"" regexpfilter "\"")))
+    (setq googlecl-default-title-filter regexpfilter)
+    (message "List blog command is : %s" listblogcmd)
+    (set-process-filter  (start-process-shell-command "googlecl-list" "*googlcl blogs*" listblogcmd) 'googlecl-list-process)))
+
 (provide 'org-googlecl)
