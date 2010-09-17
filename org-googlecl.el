@@ -148,16 +148,9 @@ t"
   (with-current-buffer (process-buffer proc)
     (delete-region (point-min) (point-max))
     (org-mode)
-    (insert (format "List of blogs with <%s> in the title\n\n" googlecl-default-title-filter))
-    (set-marker (process-mark proc) (point))
-    (let ((moving (= (point) (process-mark proc))))
-      (save-excursion
-	;; Insert the text, advancing the process marker.
-	(goto-char (process-mark proc))
-	(insert string)
-	(set-marker (process-mark proc) (point)))
-      (if moving (goto-char (process-mark proc))))
-    (switch-to-buffer (process-buffer proc))))
+    (insert (format "List of blogs with <%s> in the title\n\n* " googlecl-default-title-filter))
+    (insert (replace-regexp-in-string ",http:" "\n  http:" (replace-regexp-in-string  "\n" "\n* " string)))
+  (switch-to-buffer (process-buffer proc))))
 
 (defun googlecl-list-blogs ()
   "accept a  title filter value and then list all blogs which match that value"
