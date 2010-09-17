@@ -92,10 +92,7 @@ t"
 		       (read-from-minibuffer "Body:" ))))
 
 
-  (if blabels
-      (setq blabels (string-trim blabels)))
-
-  (setq googlecl-default-labels 
+    (setq googlecl-default-labels 
 	(setq blabels 
 	      (read-from-minibuffer 
 	       "Labels:" 
