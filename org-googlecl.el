@@ -150,6 +150,7 @@ t"
     (org-mode)
     (org-insert-heading)
     (insert(format " List of blogs with <%s> in the title\n\n" googlecl-default-title-filter))
+    (setq string (replace-regexp-in-string "\n$" ""  string))
     (save-excursion
       (let ((items (split-string string "\n"))
 	    (first t))
