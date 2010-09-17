@@ -48,6 +48,11 @@
   :group 'org-googlecl
   :type 'boolean)
 
+(defcustom googlecl-default-title-filter ".*"
+  "regexp for searching blogger"
+  :group 'org-googlecl
+  :type 'string)
+
 (defun googlecl-prompt-blog ()
   "If in an org buffer prompt whether to blog the entire entry or to perform a  normal text blog."
   (interactive)
