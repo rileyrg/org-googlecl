@@ -156,17 +156,17 @@ t"
       (let ((items (split-string string "\n"))
 	    (first t))
 	(while items
-	  (org-insert-heading)
-	    (let((item (pop items)))
-	      (when (string-match "\\(.*\\),\\(http.*\\),\\(.*\\)$" item)
-		(insert  (format "%s\n  %s" (match-string 1 item)(match-string 2 item)))
-		(let ((taglist (split-string (match-string 3 item) ";")))
-		  (if taglist (org-set-tags-to (add-to-list 'taglist googlecl-blog-tag))))
-		(if first (progn
-			    (setq first nil)
-			    (org-back-to-heading)
-			    (org-metaright)
-			    (org-end-of-subtree)))))))))
+	  (let((item (pop items)))
+	    (when (string-match "\\(.*\\),\\(http.*\\),\\(.*\\)$" item)
+	      (save-match-data (org-insert-heading))
+	      (insert  (format "%s\n  %s" (match-string 1 item)(match-string 2 item)))
+	      (let ((taglist (split-string (match-string 3 item) ";")))
+		(if taglist (org-set-tags-to (add-to-list 'taglist googlecl-blog-tag))))
+	      (if first (progn
+			  (setq first nil)
+			  (org-back-to-heading)
+			  (org-metaright)
+			  (org-end-of-subtree)))))))))
   (switch-to-buffer (process-buffer proc)))
 
 (defun googlecl-list-blogs ()
