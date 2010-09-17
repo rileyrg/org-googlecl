@@ -82,9 +82,7 @@ t"
 		    (browse-url (nth 0 (org-split-string blogurl))))
 		(setq blogurl (nth 0 (org-split-string blogurl)))
 		(if (or googlecl-blog-auto-del (y-or-n-p "Delete existing blog entry?"))
-		    (let ((delcommand  (format "yes y | google blogger delete --blog '%s'  --title '%s'"  googlecl-blogname  btitle)))
-		      (message "Delete command is : %s" delcommand)
-		      (call-process-shell-command delcommand))))))))
+		    (googlecl-delete-blog (googlecl-blogname  btitle))))))))
   
   (unless borg (setq bbody 
 		     (if (use-region-p) 
@@ -144,6 +142,12 @@ t"
 	    (org-set-tags-to (add-to-list 'btags googlecl-blog-tag))))))
 	       
 
+(defun googlecl-delete-blog (bname btitle)
+  "delete blog(s) from specific blog with matching title. All such blog entries are removed."
+  (let ((delcommand  (format "yes y | google blogger delete --blog '%s'  --title '%s'"  googlecl-blogname  btitle)))
+    (message "Delete command is : %s" delcommand)
+    (call-process-shell-command delcommand)))
+
 (defun googlecl-list-process (proc string)
   (with-current-buffer (process-buffer proc)
     (delete-region (point-min) (point-max))
@@ -169,12 +173,12 @@ t"
 			  (org-end-of-subtree)))))))))
   (switch-to-buffer (process-buffer proc)))
 
-(defun googlecl-list-blogs ()
+(defun org-googlecl-list-blogs ()
   "accept a  title filter value and then list all blogs which match that value"
   (interactive)
-  (let*((regexpfilter (read-from-minibuffer "Title Contains:"  googlecl-default-title-filter) )
-	 (listblogcmd (concat  "google blogger list title,url,tags --title \"" regexpfilter "\"")))
-    (setq googlecl-default-title-filter regexpfilter)
+  (setq googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
+  (setq googlecl-default-title-filter (read-from-minibuffer "Title Contains:"  googlecl-default-title-filter))
+  (let*((listblogcmd (concat  "google blogger list title,url,tags --title \"" googlecl-default-title-filter "\"")))
     (message "List blog command is : %s" listblogcmd)
     (set-process-filter  (start-process-shell-command "googlecl-list" "*googlcl blogs*" listblogcmd) 'googlecl-list-process)))
 

@@ -27,7 +27,7 @@ item - if you say "no" it will provide a normal text blog using (googlecl-blog).
 
 This might be done like this:-
 
-(global-set-key (kbd "C-c L") 'googlecl-list-blogs)
+(global-set-key (kbd "C-c L") 'org-googlecl-list-blogs)
 (global-set-key (kbd "C-c B") 'googlecl-prompt-blog)
 
 
@@ -47,13 +47,17 @@ for more details.
 
 Coming Up
 =========
-Ability to list blogs based on title contents and then jump to asociated org item if it exists.
+Ability to list blogs based on title contents (done) and then jump to asociated org item if it exists.
 assign a UID to the blog and org item for instant match ups.
-
+Enable githooks to call and set a template - auto logging in org-mode jounral of git updates.
 
 Known Issues
 ============
-Am sure there must be a better way of getting only the text header not to include the tags.
+
+There are numerous issues with trying to reblog from the output of org-googlecl-list-blogs.
+Probably linked to untrimmed subjects. Nothing so devastating.
+
+The process finished message is at the top of the blog list created by org-googlecl-list-blogs
 
 
 
