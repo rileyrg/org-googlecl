@@ -148,9 +148,21 @@ t"
   (with-current-buffer (process-buffer proc)
     (delete-region (point-min) (point-max))
     (org-mode)
-    (insert (format "List of blogs with <%s> in the title\n\n* " googlecl-default-title-filter))
-    (insert (replace-regexp-in-string ",http:" "\n  http:" (replace-regexp-in-string  "\n" "\n* " string)))
-  (switch-to-buffer (process-buffer proc))))
+    (org-insert-heading)
+    (insert(format " List of blogs with <%s> in the title\n\n" googlecl-default-title-filter))
+    (save-excursion
+      (let ((items (split-string string "\n"))
+	    (first t))
+	(while items
+	    (org-insert-heading)
+	    (insert  (replace-regexp-in-string ",http:" "\n  http:" (pop items)))
+	    (org-set-tags-to googlecl-blog-tag)
+	    (if first (progn
+			(setq first nil)
+			(org-back-to-heading)
+			(org-metaright)
+			(org-end-of-subtree)))))))
+  (switch-to-buffer (process-buffer proc)))
 
 (defun googlecl-list-blogs ()
   "accept a  title filter value and then list all blogs which match that value"
