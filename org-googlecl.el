@@ -151,21 +151,22 @@ t"
     (org-insert-heading)
     (insert(format " List of blogs with <%s> in the title\n\n" googlecl-default-title-filter))
     (setq string (replace-regexp-in-string "\n$" ""  string))
+    (message (format "length is %s" (length string)))
     (save-excursion
       (let ((items (split-string string "\n"))
 	    (first t))
 	(while items
 	    (let((item (pop items)))
-	      (org-insert-heading)
-	      (string-match "\\(.*\\),\\(http.*\\),\\(.*\\)$" item)
-	      (insert  (format "%s\n  %s" (match-string 1 item)(match-string 2 item)))
-	      (let ((taglist (split-string (match-string 3 item) ";")))
-		(if taglist (org-set-tags-to (add-to-list 'taglist googlecl-blog-tag))))
-	      (if first (progn
-			  (setq first nil)
-			  (org-back-to-heading)
-			  (org-metaright)
-			  (org-end-of-subtree))))))))
+	      (when (string-match "\\(.*\\),\\(http.*\\),\\(.*\\)$" item)
+		(org-insert-heading)
+		(insert  (format "%s\n  %s" (match-string 1 item)(match-string 2 item)))
+		(let ((taglist (split-string (match-string 3 item) ";")))
+		  (if taglist (org-set-tags-to (add-to-list 'taglist googlecl-blog-tag))))
+		(if first (progn
+			    (setq first nil)
+			    (org-back-to-heading)
+			    (org-metaright)
+			    (org-end-of-subtree)))))))))
   (switch-to-buffer (process-buffer proc)))
 
 (defun googlecl-list-blogs ()
