@@ -27,7 +27,9 @@ item - if you say "no" it will provide a normal text blog using (googlecl-blog).
 
 This might be done like this:-
 
-     (define-key mode-specific-map [?B] 'googlecl-prompt-blog)
+(global-set-key (kbd "C-c L") 'googlecl-list-blogs)
+(global-set-key (kbd "C-c B") 'googlecl-prompt-blog)
+
 
 
 Requirements

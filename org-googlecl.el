@@ -147,8 +147,6 @@ t"
 	    (org-set-tags-to (add-to-list 'btags googlecl-blog-tag))))))
 	       
 
-(global-set-key (kbd "C-c L") 'googlecl-list-blogs)
-
 (defun googlecl-list-process (proc string)
   (with-current-buffer (process-buffer proc)
     (delete-region (point-min) (point-max))
