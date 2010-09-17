@@ -155,21 +155,24 @@ t"
       (let ((items (split-string string "\n"))
 	    (first t))
 	(while items
-	    (org-insert-heading)
-	    (insert  (replace-regexp-in-string ",http:" "\n  http:" (pop items)))
-	    (org-set-tags-to googlecl-blog-tag)
-	    (if first (progn
-			(setq first nil)
-			(org-back-to-heading)
-			(org-metaright)
-			(org-end-of-subtree)))))))
+	    (let((item (pop items)))
+	      (org-insert-heading)
+	      (string-match "\\(.*\\),\\(http.*\\),\\(.*\\)$" item)
+	      (insert  (format "%s\n  %s" (match-string 1 item)(match-string 2 item)))
+	      (let ((taglist (split-string (match-string 3 item) ";")))
+		(if taglist (org-set-tags-to (add-to-list 'taglist googlecl-blog-tag))))
+	      (if first (progn
+			  (setq first nil)
+			  (org-back-to-heading)
+			  (org-metaright)
+			  (org-end-of-subtree))))))))
   (switch-to-buffer (process-buffer proc)))
 
 (defun googlecl-list-blogs ()
   "accept a  title filter value and then list all blogs which match that value"
   (interactive)
   (let*((regexpfilter (read-from-minibuffer "Title Contains:"  googlecl-default-title-filter) )
-	 (listblogcmd (concat  "google blogger list title,url --title \"" regexpfilter "\"")))
+	 (listblogcmd (concat  "google blogger list title,url,tags --title \"" regexpfilter "\"")))
     (setq googlecl-default-title-filter regexpfilter)
     (message "List blog command is : %s" listblogcmd)
     (set-process-filter  (start-process-shell-command "googlecl-list" "*googlcl blogs*" listblogcmd) 'googlecl-list-process)))
