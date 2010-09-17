@@ -48,6 +48,11 @@
   :group 'org-googlecl
   :type 'boolean)
 
+(defcustom googlecl-default-title-filter ".*"
+  "regexp for searching blogger"
+  :group 'org-googlecl
+  :type 'string)
+
 (defun googlecl-prompt-blog ()
   "If in an org buffer prompt whether to blog the entire entry or to perform a  normal text blog."
   (interactive)
@@ -142,33 +147,36 @@ t"
 	    (org-set-tags-to (add-to-list 'btags googlecl-blog-tag))))))
 	       
 
-(global-set-key (kbd "C-c L") 'googlecl-list-blogs)
-
 (defun googlecl-list-process (proc string)
   (with-current-buffer (process-buffer proc)
     (delete-region (point-min) (point-max))
     (org-mode)
     (org-insert-heading)
     (insert(format " List of blogs with <%s> in the title\n\n" googlecl-default-title-filter))
+    (setq string (replace-regexp-in-string "\n$" ""  string))
+    (message (format "length is %s" (length string)))
     (save-excursion
       (let ((items (split-string string "\n"))
 	    (first t))
 	(while items
-	    (org-insert-heading)
-	    (insert  (replace-regexp-in-string ",http:" "\n  http:" (pop items)))
-	    (org-set-tags-to googlecl-blog-tag)
-	    (if first (progn
-			(setq first nil)
-			(org-back-to-heading)
-			(org-metaright)
-			(org-end-of-subtree)))))))
+	  (let((item (pop items)))
+	    (when (string-match "\\(.*\\),\\(http.*\\),\\(.*\\)$" item)
+	      (save-match-data (org-insert-heading))
+	      (insert  (format "%s\n  %s" (match-string 1 item)(match-string 2 item)))
+	      (let ((taglist (split-string (match-string 3 item) ";")))
+		(if taglist (org-set-tags-to (add-to-list 'taglist googlecl-blog-tag))))
+	      (if first (progn
+			  (setq first nil)
+			  (org-back-to-heading)
+			  (org-metaright)
+			  (org-end-of-subtree)))))))))
   (switch-to-buffer (process-buffer proc)))
 
 (defun googlecl-list-blogs ()
   "accept a  title filter value and then list all blogs which match that value"
   (interactive)
   (let*((regexpfilter (read-from-minibuffer "Title Contains:"  googlecl-default-title-filter) )
-	 (listblogcmd (concat  "google blogger list title,url --title \"" regexpfilter "\"")))
+	 (listblogcmd (concat  "google blogger list title,url,tags --title \"" regexpfilter "\"")))
     (setq googlecl-default-title-filter regexpfilter)
     (message "List blog command is : %s" listblogcmd)
     (set-process-filter  (start-process-shell-command "googlecl-list" "*googlcl blogs*" listblogcmd) 'googlecl-list-process)))
