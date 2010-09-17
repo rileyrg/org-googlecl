@@ -54,6 +54,9 @@ Enable githooks to call and set a template - auto logging in org-mode jounral of
 Known Issues
 ============
 
+I have a sneaky suspicion using the googlecl tool is fundamentally
+floored. Probably better to use the google APIs directly.
+
 There are numerous issues with trying to reblog from the output of org-googlecl-list-blogs.
 Probably linked to untrimmed subjects. Nothing so devastating.
 
