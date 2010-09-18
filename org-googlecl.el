@@ -53,6 +53,12 @@
   :group 'org-googlecl
   :type 'string)
 
+(defcustom googlecl-no-labels "N/A"
+  "the repsonse from googlecl if the blog has no labels"
+  :group 'org-googlecl
+  :type 'string)
+(setq googlecl-no-labels "N/A")
+
 (defun googlecl-prompt-blog ()
   "If in an org buffer prompt whether to blog the entire entry or to perform a  normal text blog."
   (interactive)
@@ -162,10 +168,10 @@ t"
 	(while items
 	  (let((item (pop items)))
 	    (when (string-match "\\(.*\\),\\(http.*\\),\\(.*\\)$" item)
-	      (save-match-data (org-insert-heading))
+	      (save-match-data (org-insert-heading nil t))
 	      (insert  (format "%s\n  %s" (match-string 1 item)(match-string 2 item)))
 	      (let ((taglist (split-string (match-string 3 item) ";")))
-		(if taglist (org-set-tags-to (add-to-list 'taglist googlecl-blog-tag))))
+		(if taglist (org-set-tags-to (remove googlecl-no-labels (add-to-list 'taglist googlecl-blog-tag)))))
 	      (if first (progn
 			  (setq first nil)
 			  (org-back-to-heading)
