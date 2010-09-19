@@ -47,13 +47,12 @@ Coming Up
 =========
 Ability to list blogs based on title contents (done) and then jump to asociated org item if it exists.
 assign a UID to the blog and org item for instant match ups.
-Enable githooks to call and set a template - auto logging in org-mode jounral of git updates.
 
 Known Issues
 ============
 
 I have a sneaky suspicion using the googlecl tool is fundamentally
-floored. Probably better to use the google APIs directly.
+flawed. Probably better to use the google APIs directly.
 
 There are numerous issues with trying to reblog from the output of org-googlecl-list-blogs.
 Probably linked to untrimmed subjects. Nothing so devastating.
