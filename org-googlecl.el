@@ -88,7 +88,7 @@ t"
 		    (browse-url (nth 0 (org-split-string blogurl))))
 		(setq blogurl (nth 0 (org-split-string blogurl)))
 		(if (or googlecl-blog-auto-del (y-or-n-p "Delete existing blog entry?"))
-		    (googlecl-delete-blog (googlecl-blogname  btitle))))))))
+		    (googlecl-delete-blog googlecl-blogname  btitle)))))))
   
   (unless borg (setq bbody 
 		     (if (use-region-p) 

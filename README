@@ -30,8 +30,6 @@ This might be done like this:-
 (global-set-key (kbd "C-c L") 'org-googlecl-list-blogs)
 (global-set-key (kbd "C-c B") 'googlecl-prompt-blog)
 
-
-
 Requirements
 ============
 emacs, org-mode.
