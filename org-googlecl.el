@@ -38,6 +38,11 @@
   :group 'org-googlecl
   :type 'string)
 
+(defcustom googlecl-repost-tag "repost"
+  "tag/label value for blog entries which have been reposted"
+  :group 'org-googlecl
+  :type 'string)
+
 (defcustom googlecl-blog-auto-del nil
   "If set to t then will auto delete any existing blog entries with the same title"
   :group 'org-googlecl
@@ -82,15 +87,15 @@ t"
 		       (read-from-minibuffer "Body:" ))))
 
 
-    (setq googlecl-default-labels 
+  (setq googlecl-default-labels 
 	(setq blabels 
 	      (read-from-minibuffer 
 	       "Labels:" 
 	       (if (zerop (length blabels))
 		   googlecl-default-labels
-		   blabels
+		 blabels
 		 ))))
-
+  
   (if googlecl-prompt-footer (setq googlecl-footer
 	(read-from-minibuffer
 	 "Footer:"
@@ -98,34 +103,34 @@ t"
 
   ;; If the option flag googlecl-blog-exists is set to true we check if there is already an entry with this title.
   ;; If a blog with the same title exists then give the option to view it via the default browser.
-  (if googlecl-blog-exists
-      (with-temp-buffer
-	(let* ((blogrc (call-process-shell-command  (concat "google blogger  list --blog '" googlecl-blogname "' --title '" btitle "' url") nil (current-buffer)))
-	     (blogurl (buffer-string)))
-	  (if (not (zerop(length blogurl)))
-	      (progn
-		(unless googlecl-blog-auto-del (if (and googlecl-blog-exists (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?")))
-		    (browse-url (nth 0 (org-split-string blogurl)))))
-		(setq blogurl (nth 0 (org-split-string blogurl)))
-		(if (or googlecl-blog-auto-del (y-or-n-p "Delete existing blog entry?"))
-		    (googlecl-delete-blog googlecl-blogname  btitle)))))))
-  
-  (let* ((tmpfile (make-temp-file "googlecl"))
-	 (bhtml (if borg (org-export-as-html 5 nil nil 'string t) bbody))
-	 (blog-command (concat 
-			"google blogger post --blog \"" googlecl-blogname "\""
-			(if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
-			(if (length blabels) (concat " --tags \"" blabels "\" "))  
-			tmpfile)))
+  (let((reposted nil))
+    (if googlecl-blog-exists
+	(with-temp-buffer
+	  (let* ((blogrc (call-process-shell-command  (concat "google blogger  list --blog '" googlecl-blogname "' --title '" btitle "' url") nil (current-buffer)))
+		 (blogurl (buffer-string)))
+	    (if (not (zerop(length blogurl)))
+		(progn
+		  (unless googlecl-blog-auto-del (if (and googlecl-blog-exists (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?")))
+						     (browse-url (nth 0 (org-split-string blogurl)))))
+		  (setq blogurl (nth 0 (org-split-string blogurl)))
+		  (if (setq reposted (or googlecl-blog-auto-del (y-or-n-p "Delete existing blog entry?")))
+		      (googlecl-delete-blog googlecl-blogname  btitle)))))))
+    (let* ((tmpfile (make-temp-file "googlecl"))
+	   (bhtml (if borg (org-export-as-html 5 nil nil 'string t) bbody))
+	   (blog-command (concat 
+			  "google blogger post --blog \"" googlecl-blogname "\""
+			  (if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
+			  (if (length blabels) (concat " --tags \"" (concat blabels (if (and reposted (not(zerop(length googlecl-repost-tag)))) (concat "," googlecl-repost-tag) "")) "\" "))  
+			  tmpfile)))
     
-    (message "blog command is %s" blog-command)
+      (message "blog command is %s" blog-command)
 
-    (with-temp-file  tmpfile
-      (insert bhtml)
-      (goto-char (buffer-end 1))
-      (insert googlecl-footer))
-
-    (start-process-shell-command "googlecl-pid" nil blog-command)))
+      (with-temp-file  tmpfile
+	(insert bhtml)
+	(goto-char (buffer-end 1))
+	(insert googlecl-footer))
+      
+      (start-process-shell-command "googlecl-pid" nil blog-command))))
 
 
 (defun org-googlecl-blog  ()
