@@ -46,6 +46,7 @@ for more details.
 Coming Up
 =========
 Ability to list blogs based on title contents (done) and then jump to asociated org item if it exists.
+Delete blogs from the blog list.
 assign a UID to the blog and org item for instant match ups.
 Might be nice to allow config of a user defined function for defining labels so can have content aware tagging for reposts etc. Possibly even linking to a github commit node.
 
