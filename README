@@ -37,6 +37,8 @@ emacs, org-mode.
 The command line google utility found here http://code.google.com/p/googlecl/ .
 NOTE : you must set up the Blog authorisation from the command line before using these functions. 
 
+Thie command line tool is for Linux. I have no idea about Mac/Windows equivalents.
+
 The easiest way to to this is to "google blogger list" from the command line. If you have not configured
 google with the config file use the --blog option to specify which blog. 
 
