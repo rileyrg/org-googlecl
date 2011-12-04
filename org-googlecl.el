@@ -73,7 +73,7 @@
   (interactive)
   (if (eq major-mode 'org-mode)
       (if (yes-or-no-p "Blog the Org Entry?")
-	  (org-googlecl-blog) 
+          (org-googlecl-blog) 
         (googlecl-blog))
     (googlecl-blog)))
 
@@ -101,18 +101,18 @@ t"
   ;; If the option flag googlecl-blog-exists is set to true we check if there is already an entry with this title.
   ;; If a blog with the same title exists then give the option to view it via the default browser.
   (let (reposted)
-    (if googlecl-blog-exists
-        (with-temp-buffer
-          (let* ((blogrc (call-process-shell-command  (format "google blogger  list --blog '%s' --title '%s' url" googlecl-blogname btitle) nil (current-buffer)))
-                 (blogurl (buffer-string)))
-            (when (plusp (length blogurl))
-              (when (and (not googlecl-blog-auto-del) 
-                         googlecl-blog-exists
-                         (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?")))
-                (browse-url (nth 0 (org-split-string blogurl))))
-              (setq blogurl (nth 0 (org-split-string blogurl)))
-              (when (setq reposted (or googlecl-blog-auto-del (y-or-n-p "Delete existing blog entry?")))
-                (googlecl-delete-blog googlecl-blogname btitle))))))
+    (when googlecl-blog-exists
+      (with-temp-buffer
+        (let* ((blogrc (call-process-shell-command  (format "google blogger  list --blog '%s' --title '%s' url" googlecl-blogname btitle) nil (current-buffer)))
+               (blogurl (buffer-string)))
+          (when (plusp (length blogurl))
+            (when (and (not googlecl-blog-auto-del) 
+                       googlecl-blog-exists
+                       (y-or-n-p (concat "Blog entry exists :" blogurl ". View existing?")))
+              (browse-url (nth 0 (org-split-string blogurl))))
+            (setq blogurl (nth 0 (org-split-string blogurl)))
+            (when (setq reposted (or googlecl-blog-auto-del (y-or-n-p "Delete existing blog entry?")))
+              (googlecl-delete-blog btitle))))))
     (let* ((tmpfile (make-temp-file "googlecl"))
            (bhtml (if borg (org-export-as-html 5 nil nil 'string t) bbody))
            (blog-command (concat 
@@ -144,14 +144,15 @@ t"
       (when (plusp (length googlecl-blog-tag))
         (org-set-tags-to (add-to-list 'btags googlecl-blog-tag))))))
 
-(defun googlecl-delete-blog (bname btitle)
+(defun googlecl-delete-blog (btitle)
   "delete blog(s) from specific blog with matching title. All such blog entries are removed."
-  (let ((delcommand  (format "yes y | google blogger delete --blog '%s'  --title '%s'"  googlecl-blogname  btitle)))
+  (let ((delcommand  (format "yes | google blogger delete --blog '%s' --title '%s'"  googlecl-blogname btitle)))
     (message "Delete command is : %s" delcommand)
-    (call-process-shell-command delcommand)))
+    (start-process-shell-command "google" nil delcommand)))
 
 (defun googlecl-list-process (proc string)
   (with-current-buffer (process-buffer proc)
+    (toggle-read-only 0)
     (delete-region (point-min) (point-max))
     (org-mode)
     (org-insert-heading)
@@ -175,18 +176,37 @@ t"
                   (org-metaright)
                   (org-end-of-subtree)))))))))
   (switch-to-buffer (process-buffer proc))
-  (toggle-read-only))
+  (let ((keymap (make-keymap)))
+    (define-key keymap "d" 'org-googlecl-delete-entry)
+    (define-key keymap "g" (lambda () 
+                             (interactive)
+                             (org-googlecl-list-blogs-aux googlecl-blogname
+                                                          googlecl-default-title-filter)))
+    (use-local-map keymap))
+  (toggle-read-only 1))
+
+(defun org-googlecl-delete-entry ()
+  (interactive)
+  (let ((title (org-get-heading)))
+    (when (y-or-n-p (format "Do you really delete entry %s ?" title))
+      (googlecl-delete-blog titile)
+      (org-googlecl-list-blogs-aux googlecl-blogname
+                                   googlecl-default-title-filter))))
+
+(defun org-googlecl-list-blogs-aux (blogname title-filter)
+  (let ((listblogcmd (format "google blogger list title,url,tags --title \"%s\" --blog \"%s\"" 
+                             title-filter
+                             blogname)))
+    (message "List blog command is : %s" listblogcmd)
+    (set-process-filter (start-process-shell-command "googlecl-list" "*googlcl blogs*" listblogcmd)
+                        'googlecl-list-process)))
 
 (defun org-googlecl-list-blogs ()
   "accept a  title filter value and then list all blogs which match that value"
   (interactive)
   (setq googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
-  (setq googlecl-default-title-filter (read-from-minibuffer "Title Contains:" googlecl-default-title-filter))
-  (let ((listblogcmd (format "google blogger list title,url,tags --title \"%s\" --blog \"%s\"" 
-                             googlecl-default-title-filter
-                             googlecl-blogname)))
-    (message "List blog command is : %s" listblogcmd)
-    (set-process-filter (start-process-shell-command "googlecl-list" "*googlcl blogs*" listblogcmd)
-                        'googlecl-list-process)))
+  (setq googlecl-default-title-filter (read-from-minibuffer "Title Contains:" googlecl-default-title-filter)) 
+  (org-googlecl-list-blogs-aux googlecl-blogname
+                               googlecl-default-title-filter))
 
 (provide 'org-googlecl)
