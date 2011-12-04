@@ -120,11 +120,12 @@ t"
                           (if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
                           (if (length blabels) (concat " --tags \"" (concat blabels (if (and reposted (plusp (length googlecl-repost-tag))) (concat "," googlecl-repost-tag) "")) "\" "))  
                           tmpfile)))
-      (message "blog command is %s" blog-command)
-      (with-temp-file  tmpfile
+      (message "blog command is : %s" blog-command)
+      (with-temp-file tmpfile
         (insert bhtml)
         (goto-char (buffer-end 1))
-        (insert googlecl-footer))
+        (when googlecl-footer
+          (insert googlecl-footer)))
       (start-process-shell-command "googlecl-pid" nil blog-command))))
 
 (defun org-googlecl-blog  ()
@@ -144,11 +145,12 @@ t"
       (when (plusp (length googlecl-blog-tag))
         (org-set-tags-to (add-to-list 'btags googlecl-blog-tag))))))
 
-(defun googlecl-delete-blog (btitle)
+(defun googlecl-delete-blog (btitle &optional filter)
   "delete blog(s) from specific blog with matching title. All such blog entries are removed."
   (let ((delcommand  (format "yes | google blogger delete --blog '%s' --title '%s'"  googlecl-blogname btitle)))
     (message "Delete command is : %s" delcommand)
-    (start-process-shell-command "google" nil delcommand)))
+    (set-process-filter (start-process-shell-command "google" nil delcommand)
+                        filter)))
 
 (defun googlecl-list-process (proc string)
   (with-current-buffer (process-buffer proc)
@@ -177,21 +179,24 @@ t"
                   (org-end-of-subtree)))))))))
   (switch-to-buffer (process-buffer proc))
   (let ((keymap (make-keymap)))
-    (define-key keymap "d" 'org-googlecl-delete-entry)
+    (define-key keymap "d" (lambda () 
+                             (interactive)
+                             (org-googlecl-delete-entry (org-get-heading))))
     (define-key keymap "g" (lambda () 
                              (interactive)
-                             (org-googlecl-list-blogs-aux googlecl-blogname
-                                                          googlecl-default-title-filter)))
+                             (org-googlecl-list-blogs googlecl-blogname
+                                                      googlecl-default-title-filter)))
+    (define-key keymap "q" 'quit-window)
     (use-local-map keymap))
   (toggle-read-only 1))
 
-(defun org-googlecl-delete-entry ()
-  (interactive)
-  (let ((title (org-get-heading)))
-    (when (y-or-n-p (format "Do you really delete entry %s ?" title))
-      (googlecl-delete-blog titile)
-      (org-googlecl-list-blogs-aux googlecl-blogname
-                                   googlecl-default-title-filter))))
+(defun org-googlecl-delete-entry (title)
+  (interactive "sTitle to delete: ")
+  (when (y-or-n-p (format "Do you really delete entry '%s' ?" title))
+    (googlecl-delete-blog title 
+                          (lambda (proc string)
+                            (org-googlecl-list-blogs googlecl-blogname
+                                                     googlecl-default-title-filter)))))
 
 (defun org-googlecl-list-blogs-aux (blogname title-filter)
   (let ((listblogcmd (format "google blogger list title,url,tags --title \"%s\" --blog \"%s\"" 
@@ -201,11 +206,13 @@ t"
     (set-process-filter (start-process-shell-command "googlecl-list" "*googlcl blogs*" listblogcmd)
                         'googlecl-list-process)))
 
-(defun org-googlecl-list-blogs ()
+(defun org-googlecl-list-blogs (blogname title-filter)
   "accept a  title filter value and then list all blogs which match that value"
-  (interactive)
-  (setq googlecl-blogname (read-from-minibuffer "Blog Name:" googlecl-blogname))
-  (setq googlecl-default-title-filter (read-from-minibuffer "Title Contains:" googlecl-default-title-filter)) 
+  (interactive 
+   (list (read-from-minibuffer "Blog Name: " googlecl-blogname)
+         (read-from-minibuffer "Title Contains: " googlecl-default-title-filter)))
+  (setq googlecl-blogname blogname)
+  (setq googlecl-default-title-filter title-filter) 
   (org-googlecl-list-blogs-aux googlecl-blogname
                                googlecl-default-title-filter))
 
