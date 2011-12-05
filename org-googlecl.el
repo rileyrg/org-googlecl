@@ -147,7 +147,7 @@ t"
 
 (defun googlecl-delete-blog (btitle &optional filter)
   "delete blog(s) from specific blog with matching title. All such blog entries are removed."
-  (let ((delcommand  (format "yes | google blogger delete --blog '%s' --title '%s'"  googlecl-blogname btitle)))
+  (let ((delcommand  (format "yes | google blogger delete --blog '%s' --title '^%s$'"  googlecl-blogname btitle)))
     (message "Delete command is : %s" delcommand)
     (set-process-filter (start-process-shell-command "google" nil delcommand)
                         filter)))
