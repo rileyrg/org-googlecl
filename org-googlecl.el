@@ -68,6 +68,9 @@
   :group 'org-googlecl
   :type 'string)
 
+(defvar googlecl-list-process-name "googlecl-list")
+(defvar googlecl-list-buffer-name "*googlecl blogs*")
+
 (defun googlecl-prompt-blog ()
   "If in an org buffer prompt whether to blog the entire entry or to perform a normal text blog."
   (interactive)
@@ -103,7 +106,7 @@ t"
   (let (reposted)
     (when googlecl-blog-exists
       (with-temp-buffer
-        (let* ((blogrc (call-process-shell-command  (format "google blogger  list --blog '%s' --title '%s' url" googlecl-blogname btitle) nil (current-buffer)))
+        (let* ((blogrc (call-process-shell-command  (format "google blogger  list --blog '%s' --title '^%s$' url" googlecl-blogname btitle) nil (current-buffer)))
                (blogurl (buffer-string)))
           (when (plusp (length blogurl))
             (when (and (not googlecl-blog-auto-del) 
@@ -114,19 +117,25 @@ t"
             (when (setq reposted (or googlecl-blog-auto-del (y-or-n-p "Delete existing blog entry?")))
               (googlecl-delete-blog btitle))))))
     (let* ((tmpfile (make-temp-file "googlecl"))
-           (bhtml (if borg (org-export-as-html 5 nil nil 'string t) bbody))
-           (blog-command (concat 
-                          "google blogger post --blog \"" googlecl-blogname "\""
-                          (if (length btitle) (concat " --title \"" btitle "\"")) " --user \"" googlecl-username "\" " 
-                          (if (length blabels) (concat " --tags \"" (concat blabels (if (and reposted (plusp (length googlecl-repost-tag))) (concat "," googlecl-repost-tag) "")) "\" "))  
-                          tmpfile)))
-      (message "blog command is : %s" blog-command)
+           (bhtml (replace-regexp-in-string "\n+" "\n" 
+					    (if borg 
+						(org-export-as-html 5 nil nil 'string t)
+					      bbody)))
+           (command (concat 
+		     "google blogger post --blog \"" googlecl-blogname "\""
+		     (when (length btitle)
+		       (concat " --title \"" btitle "\""))
+		     " --user \"" googlecl-username "\" " 
+		     (when (length blabels)
+		       (concat " --tags \"" (concat blabels (if (and reposted (plusp (length googlecl-repost-tag))) (concat "," googlecl-repost-tag) "")) "\" "))  
+		     tmpfile)))
+      (message "blog command is : %s" command)
       (with-temp-file tmpfile
         (insert bhtml)
         (goto-char (buffer-end 1))
         (when googlecl-footer
           (insert googlecl-footer)))
-      (start-process-shell-command "googlecl-pid" nil blog-command))))
+      (start-process-shell-command "googlecl-pid" nil command))))
 
 (defun org-googlecl-blog  ()
   "Post the current org item to blogger/blogspot.
@@ -141,7 +150,7 @@ t"
         (set-mark (goto-char (org-entry-beginning-position)))
         (let ((btitle (nth 4 (org-heading-components))))
           (org-forward-same-level 1 t)
-          (googlecl-blog t btitle (mapconcat  'identity  (remove googlecl-blog-tag btags) ","))))
+          (googlecl-blog t btitle (mapconcat 'identity (remove googlecl-blog-tag btags) ","))))
       (when (plusp (length googlecl-blog-tag))
         (org-set-tags-to (add-to-list 'btags googlecl-blog-tag))))))
 
@@ -158,7 +167,8 @@ t"
     (delete-region (point-min) (point-max))
     (org-mode)
     (org-insert-heading)
-    (insert (format " List of blogs with <%s> in the title\n\n" googlecl-default-title-filter))
+    (insert (format " List of blogs with <%s> in the title\n\n" 
+		    googlecl-default-title-filter))
     (let ((string (replace-regexp-in-string "\n$" "" string)))
       (message (format "length is %s" (length string)))
       (save-excursion
@@ -199,11 +209,13 @@ t"
                                                      googlecl-default-title-filter)))))
 
 (defun org-googlecl-list-blogs-aux (blogname title-filter)
-  (let ((listblogcmd (format "google blogger list title,url,tags --title \"%s\" --blog \"%s\"" 
-                             title-filter
-                             blogname)))
-    (message "List blog command is : %s" listblogcmd)
-    (set-process-filter (start-process-shell-command "googlecl-list" "*googlcl blogs*" listblogcmd)
+  (let ((command (format "google blogger list title,url,tags --title \"%s\" --blog \"%s\"" 
+			 title-filter
+			 blogname)))
+    (message "List blog command is : %s" command)
+    (set-process-filter (start-process-shell-command googlecl-list-process-name
+						     googlecl-list-buffer-name
+						     command)
                         'googlecl-list-process)))
 
 (defun org-googlecl-list-blogs (blogname title-filter)
@@ -211,9 +223,10 @@ t"
   (interactive 
    (list (read-from-minibuffer "Blog Name: " googlecl-blogname)
          (read-from-minibuffer "Title Contains: " googlecl-default-title-filter)))
-  (setq googlecl-blogname blogname)
-  (setq googlecl-default-title-filter title-filter) 
-  (org-googlecl-list-blogs-aux googlecl-blogname
-                               googlecl-default-title-filter))
+  (unless (process-status googlecl-list-process-name) 
+    (setq googlecl-blogname blogname)
+    (setq googlecl-default-title-filter title-filter) 
+    (org-googlecl-list-blogs-aux googlecl-blogname
+				 googlecl-default-title-filter)))
 
 (provide 'org-googlecl)
