@@ -118,17 +118,17 @@ t"
               (googlecl-delete-blog btitle))))))
     (let* ((tmpfile (make-temp-file "googlecl"))
            (bhtml (replace-regexp-in-string "\n+" "\n" 
-					    (if borg 
-						(org-export-as-html 5 nil nil 'string t)
-					      bbody)))
+                                            (if borg 
+                                                (org-export-as-html 5 nil nil 'string t)
+                                              bbody)))
            (command (concat 
-		     "google blogger post --blog \"" googlecl-blogname "\""
-		     (when (length btitle)
-		       (concat " --title \"" btitle "\""))
-		     " --user \"" googlecl-username "\" " 
-		     (when (length blabels)
-		       (concat " --tags \"" (concat blabels (if (and reposted (plusp (length googlecl-repost-tag))) (concat "," googlecl-repost-tag) "")) "\" "))  
-		     tmpfile)))
+                     "google blogger post --blog \"" googlecl-blogname "\""
+                     (when (length btitle)
+                       (concat " --title \"" btitle "\""))
+                     " --user \"" googlecl-username "\" " 
+                     (when (length blabels)
+                       (concat " --tags \"" (concat blabels (if (and reposted (plusp (length googlecl-repost-tag))) (concat "," googlecl-repost-tag) "")) "\" "))  
+                     tmpfile)))
       (message "blog command is : %s" command)
       (with-temp-file tmpfile
         (insert bhtml)
@@ -168,7 +168,7 @@ t"
     (org-mode)
     (org-insert-heading)
     (insert (format " List of blogs with <%s> in the title\n\n" 
-		    googlecl-default-title-filter))
+                    googlecl-default-title-filter))
     (let ((string (replace-regexp-in-string "\n$" "" string)))
       (message (format "length is %s" (length string)))
       (save-excursion
@@ -210,12 +210,12 @@ t"
 
 (defun org-googlecl-list-blogs-aux (blogname title-filter)
   (let ((command (format "google blogger list title,url,tags --title \"%s\" --blog \"%s\"" 
-			 title-filter
-			 blogname)))
+                         title-filter
+                         blogname)))
     (message "List blog command is : %s" command)
     (set-process-filter (start-process-shell-command googlecl-list-process-name
-						     googlecl-list-buffer-name
-						     command)
+                                                     googlecl-list-buffer-name
+                                                     command)
                         'googlecl-list-process)))
 
 (defun org-googlecl-list-blogs (blogname title-filter)
@@ -227,6 +227,6 @@ t"
     (setq googlecl-blogname blogname)
     (setq googlecl-default-title-filter title-filter) 
     (org-googlecl-list-blogs-aux googlecl-blogname
-				 googlecl-default-title-filter)))
+                                 googlecl-default-title-filter)))
 
 (provide 'org-googlecl)
